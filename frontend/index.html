@@ -7,24 +7,32 @@
 </head>
 <body>
 
-<div class="container">
-    <h1>🔍 BiasLens</h1>
-    <p class="subtitle">Ethical AI Bias Detection Dashboard</p>
+<div class="app">
+    <header>
+        <h1>BiasLens</h1>
+        <p>Ethical AI • Bias Detection • Explainability</p>
+    </header>
 
     <div class="card">
-        <h2>Upload Dataset</h2>
+        <h2>Dataset Bias Analysis</h2>
 
-        <input type="file" id="file" />
-        <input type="text" id="sensitive" placeholder="Sensitive attribute (e.g. gender)" />
+        <label>Upload Dataset</label>
+        <input type="file" id="file">
 
-        <button onclick="analyzeDataset()">Analyze Bias</button>
+        <label>Sensitive Attribute</label>
+        <input type="text" id="sensitive" placeholder="e.g. gender">
+
+        <!-- IMPORTANT: onclick must match JS function name -->
+        <button id="analyzeBtn">Analyze Bias</button>
     </div>
 
-    <div class="card result-card" id="result">
-        <p class="placeholder">Results will appear here ✨</p>
+    <div class="card result" id="result">
+        <p class="placeholder">Results will appear here</p>
     </div>
 </div>
 
+<!-- SCRIPT MUST BE AT BOTTOM -->
 <script src="script.js"></script>
+
 </body>
 </html>
