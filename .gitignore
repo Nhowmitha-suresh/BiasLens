@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDEs
+.vscode/
+.cursor/
+.windsurf/
+.continue/
+.codeium/
+
+# Data / secrets
+.env
+*.pkl
+
+# Node
+node_modules/
+
+# Logs
+*.log

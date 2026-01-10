@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>BiasLens | Ethical AI</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="container">
+    <h1>🔍 BiasLens</h1>
+    <p class="subtitle">Ethical AI Bias Detection Dashboard</p>
+
+    <div class="card">
+        <h2>Upload Dataset</h2>
+
+        <input type="file" id="file" />
+        <input type="text" id="sensitive" placeholder="Sensitive attribute (e.g. gender)" />
+
+        <button onclick="analyzeDataset()">Analyze Bias</button>
+    </div>
+
+    <div class="card result-card" id="result">
+        <p class="placeholder">Results will appear here ✨</p>
+    </div>
+</div>
+
+<script src="script.js"></script>
+</body>
+</html>
