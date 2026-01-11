@@ -2,6 +2,8 @@
 
 BiasLens is a full-stack Ethical AI application designed to detect, explain, and visualize bias in machine learning datasets and models.  
 The project focuses on fairness, transparency, and responsible AI development by translating complex bias metrics into human-understandable insights.
+<img width="1914" height="1076" alt="Screenshot 2026-01-11 192735" src="https://github.com/user-attachments/assets/4bc40dc5-3cf6-4b0f-8be8-7d411e94a8d8" />
+
 
 ## 🚀 Key Features
 - 📊 Dataset bias detection based on sensitive attributes (e.g., gender, age)
