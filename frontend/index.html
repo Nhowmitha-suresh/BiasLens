@@ -1,90 +1,142 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>BiasLens – Ethical AI Bias Analyzer</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<title>BiasLens – Ethical AI</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <!-- Chart.js -->
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            background: #f4f6f8;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-        }
+<style>
+body {
+    margin: 0;
+    background: #0f1117;
+    color: #eaeaf0;
+    font-family: "Segoe UI", sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+}
 
-        .card {
-            background: white;
-            padding: 25px;
-            width: 480px;
-            border-radius: 12px;
-            box-shadow: 0 12px 30px rgba(0,0,0,0.15);
-        }
+.container {
+    width: 900px;
+    background: #161a23;
+    border-radius: 16px;
+    padding: 30px;
+    box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+}
 
-        h2 {
-            text-align: center;
-            margin-bottom: 15px;
-        }
+h1 {
+    text-align: center;
+    margin-bottom: 20px;
+    color: #ffcc00;
+}
 
-        label {
-            display: block;
-            margin-top: 12px;
-            font-weight: bold;
-        }
+.grid {
+    display: grid;
+    grid-template-columns: 1fr 2fr;
+    gap: 25px;
+}
 
-        input, button {
-            width: 100%;
-            margin-top: 6px;
-            padding: 10px;
-            font-size: 14px;
-        }
+.card {
+    background: #1e2230;
+    border-radius: 12px;
+    padding: 20px;
+}
 
-        button {
-            background: #ffc107;
-            border: none;
-            margin-top: 18px;
-            font-weight: bold;
-            cursor: pointer;
-        }
+label {
+    font-weight: bold;
+}
 
-        #status {
-            margin-top: 12px;
-            font-weight: bold;
-        }
+input, button {
+    width: 100%;
+    padding: 10px;
+    margin-top: 8px;
+    background: #0f1117;
+    color: #fff;
+    border: 1px solid #333;
+    border-radius: 8px;
+}
 
-        #results {
-            margin-top: 15px;
-        }
+button {
+    background: linear-gradient(135deg,#ffcc00,#ff9800);
+    color: #000;
+    font-weight: bold;
+    cursor: pointer;
+    border: none;
+}
 
-        canvas {
-            margin-top: 20px;
-        }
-    </style>
+button:hover {
+    opacity: 0.9;
+}
+
+#status {
+    margin-top: 10px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+    font-size: 13px;
+}
+
+th, td {
+    border: 1px solid #333;
+    padding: 6px;
+    text-align: center;
+}
+
+th {
+    background: #272c3d;
+}
+
+.highlight {
+    background: #3a2f00;
+}
+
+canvas {
+    margin-top: 15px;
+}
+</style>
 </head>
+
 <body>
 
-<div class="card">
-    <h2>BiasLens</h2>
+<div class="container">
+    <h1>BiasLens</h1>
 
-    <!-- NO FORM TAG (IMPORTANT) -->
-    <label>Upload CSV Dataset</label>
-    <input type="file" id="dataset" accept=".csv">
+    <div class="grid">
 
-    <label>Sensitive Attribute</label>
-    <input type="text" id="sensitive" placeholder="e.g. gender, race, age">
+        <!-- INPUT CARD -->
+        <div class="card">
+            <label>Upload CSV Dataset</label>
+            <input type="file" id="dataset" accept=".csv">
 
-    <!-- MOST IMPORTANT -->
-    <button id="analyzeBtn" type="button">Analyze Bias</button>
+            <label style="margin-top:15px;">Sensitive Attribute</label>
+            <input type="text" id="sensitive" placeholder="e.g. gender, race">
 
-    <div id="status"></div>
-    <div id="results"></div>
+            <button id="analyzeBtn" type="button">Analyze Bias</button>
+            <div id="status"></div>
+        </div>
 
-    <canvas id="biasChart" width="400" height="300"></canvas>
+        <!-- OUTPUT CARD -->
+        <div class="card">
+            <h3>📊 Analysis</h3>
+            <div id="results"></div>
+            <canvas id="biasChart"></canvas>
+
+            <h3>🧠 Explanation</h3>
+            <p id="explanation"></p>
+
+            <h3>📋 Dataset Preview</h3>
+            <div style="overflow-x:auto;">
+                <table id="previewTable"></table>
+            </div>
+        </div>
+
+    </div>
 </div>
 
 <script src="script.js"></script>
