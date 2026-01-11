@@ -2,37 +2,83 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>BiasLens | Ethical AI</title>
-    <link rel="stylesheet" href="style.css">
+    <title>BiasLens</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: #f4f4f4;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .card {
+            background: white;
+            padding: 25px;
+            width: 420px;
+            border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+        }
+
+        h2 {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-top: 10px;
+        }
+
+        input, button {
+            width: 100%;
+            margin-top: 6px;
+            padding: 10px;
+            font-size: 14px;
+        }
+
+        button {
+            margin-top: 15px;
+            background: #ffc107;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        #status {
+            margin-top: 15px;
+        }
+
+        #results {
+            margin-top: 15px;
+            background: #f9f9f9;
+            padding: 10px;
+            border-radius: 6px;
+        }
+    </style>
 </head>
 <body>
 
-<div class="app">
-    <header>
-        <h1>BiasLens</h1>
-        <p>Ethical AI • Bias Detection • Explainability</p>
-    </header>
+<div class="card">
+    <h2>BiasLens</h2>
 
-    <div class="card">
-        <h2>Dataset Bias Analysis</h2>
+    <!-- ⚠️ NO FORM TAG -->
+    <label>Upload CSV Dataset</label>
+    <input type="file" id="dataset" accept=".csv">
 
-        <label>Upload Dataset</label>
-        <input type="file" id="file">
+    <label>Sensitive Attribute</label>
+    <input type="text" id="sensitive" placeholder="e.g. gender">
 
-        <label>Sensitive Attribute</label>
-        <input type="text" id="sensitive" placeholder="e.g. gender">
+    <!-- 🔥 MOST IMPORTANT FIX -->
+    <button id="analyzeBtn" type="button">Analyze Bias</button>
 
-        <!-- IMPORTANT: onclick must match JS function name -->
-        <button id="analyzeBtn">Analyze Bias</button>
-    </div>
-
-    <div class="card result" id="result">
-        <p class="placeholder">Results will appear here</p>
-    </div>
+    <div id="status"></div>
+    <div id="results"></div>
 </div>
 
-<!-- SCRIPT MUST BE AT BOTTOM -->
 <script src="script.js"></script>
-
 </body>
 </html>

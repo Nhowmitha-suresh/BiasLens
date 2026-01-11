@@ -1,0 +1,13 @@
+id,age,gender,race,education,income,credit_score,loan_approved
+1,23,M,Asian,Undergraduate,24000,620,No
+2,27,F,Asian,Undergraduate,27000,640,No
+3,32,M,White,Graduate,42000,690,Yes
+4,35,F,White,Graduate,45000,700,Yes
+5,41,M,Black,Postgraduate,58000,680,Yes
+6,38,F,Black,Graduate,52000,660,No
+7,29,M,Asian,Graduate,41000,670,Yes
+8,31,F,Asian,Graduate,40000,650,No
+9,48,M,White,Postgraduate,72000,720,Yes
+10,50,F,White,Postgraduate,70000,710,Yes
+11,55,M,Black,Postgraduate,76000,730,Yes
+12,53,F,Black,Postgraduate,74000,725,Yes

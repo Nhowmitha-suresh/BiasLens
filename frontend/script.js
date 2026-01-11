@@ -1,108 +1,77 @@
-/* =====================================================
-   BiasLens – Frontend Script (FULLY FIXED)
-   ===================================================== */
+// ============================
+// BiasLens Frontend Script
+// ============================
 
-   document.addEventListener("DOMContentLoaded", function () {
-    console.log("script.js loaded successfully");
+// BACKEND URL (DO NOT CHANGE)
+const BACKEND_URL = "http://127.0.0.1:5000/analyze";
 
-    const analyzeBtn = document.getElementById("analyzeBtn");
+// DOM
+const analyzeBtn = document.getElementById("analyzeBtn");
+const fileInput = document.getElementById("dataset");
+const sensitiveInput = document.getElementById("sensitive");
+const statusDiv = document.getElementById("status");
+const resultsDiv = document.getElementById("results");
 
-    if (!analyzeBtn) {
-        console.error("Analyze button not found");
-        return;
-    }
+function setStatus(msg, color) {
+    statusDiv.innerText = msg;
+    statusDiv.style.color = color;
+}
 
-    analyzeBtn.addEventListener("click", analyzeDataset);
-});
+analyzeBtn.addEventListener("click", async () => {
+    console.log("Analyze clicked");
 
-/* =====================================================
-   Main function
-   ===================================================== */
-function analyzeDataset() {
-    const fileInput = document.getElementById("file");
-    const sensitiveInput = document.getElementById("sensitive");
-    const resultDiv = document.getElementById("result");
+    resultsDiv.innerHTML = "";
 
-    console.log("Analyze button clicked");
-
-    // Validation
     if (!fileInput.files.length) {
-        alert("Please upload a dataset file");
+        setStatus("❌ Upload a CSV file", "red");
         return;
     }
 
     if (!sensitiveInput.value.trim()) {
-        alert("Please enter a sensitive attribute (e.g. gender)");
+        setStatus("❌ Enter sensitive attribute", "red");
         return;
     }
 
-    // Loading UI
-    resultDiv.innerHTML = `
-        <p class="placeholder">Analyzing dataset… ⏳</p>
-    `;
-
-    // Prepare data
     const formData = new FormData();
-    formData.append("file", fileInput.files[0]);
+    formData.append("dataset", fileInput.files[0]);
     formData.append("sensitive", sensitiveInput.value.trim());
 
-    // Call backend
-    fetch("http://127.0.0.1:5000/dataset-bias", {
-        method: "POST",
-        body: formData
-    })
-    .then(response => {
+    setStatus("⏳ Sending data to backend...", "blue");
+
+    try {
+        const response = await fetch(BACKEND_URL, {
+            method: "POST",
+            body: formData
+        });
+
         if (!response.ok) {
-            throw new Error("Backend error");
+            const txt = await response.text();
+            throw new Error(txt);
         }
-        return response.json();
-    })
-    .then(data => {
-        renderResult(data);
-    })
-    .catch(error => {
-        console.error(error);
-        resultDiv.innerHTML = `
-            <p style="color:#c0392b; text-align:center;">
-                Backend not reachable. Make sure Flask server is running.
-            </p>
-        `;
-    });
-}
 
-/* =====================================================
-   Render Result
-   ===================================================== */
-function renderResult(data) {
-    const resultDiv = document.getElementById("result");
+        const data = await response.json();
+        console.log("Response:", data);
 
-    const riskScore = data.bias_detected ? 80 : 20;
-    const riskClass = data.bias_detected ? "high" : "low";
-    const riskText = data.bias_detected ? "High Bias Risk" : "Low Bias Risk";
+        setStatus("✅ Analysis complete", "green");
 
-    let distributionHTML = "";
-    for (let key in data.distribution) {
-        distributionHTML += `
-            <li>${key}: ${data.distribution[key].toFixed(2)}%</li>
-        `;
+        let html = `<h4>Results</h4>`;
+        html += `<p><b>Sensitive:</b> ${data.sensitive_attribute}</p>`;
+        html += `<p><b>Rows:</b> ${data.rows}</p>`;
+
+        if (data.bias_metrics) {
+            html += "<ul>";
+            for (let k in data.bias_metrics) {
+                html += `<li>${k}: ${(data.bias_metrics[k] * 100).toFixed(2)}%</li>`;
+            }
+            html += "</ul>";
+        }
+
+        html += `<p><b>Disparate Impact:</b> ${data.disparate_impact}</p>`;
+
+        resultsDiv.innerHTML = html;
+
+    } catch (err) {
+        console.error(err);
+        setStatus("❌ Backend not reachable (port 5000)", "red");
     }
-
-    resultDiv.innerHTML = `
-        <h2>Analysis Result</h2>
-
-        <p><strong>Status:</strong> ${data.message}</p>
-
-        <p class="bias-risk ${riskClass}">
-            ${riskText} (${riskScore}/100)
-        </p>
-
-        <div class="progress-bar">
-            <div class="progress-fill" style="width:${riskScore}%;"></div>
-        </div>
-
-        <h3 style="margin-top:16px;">Group Distribution</h3>
-        <ul style="margin-left:18px;">
-            ${distributionHTML}
-        </ul>
-    `;
-}
+});
