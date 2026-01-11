@@ -2,35 +2,39 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>BiasLens</title>
+    <title>BiasLens – Ethical AI Bias Analyzer</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
         body {
             font-family: Arial, sans-serif;
-            background: #f4f4f4;
+            background: #f4f6f8;
             display: flex;
             justify-content: center;
             align-items: center;
-            height: 100vh;
+            min-height: 100vh;
         }
 
         .card {
             background: white;
             padding: 25px;
-            width: 420px;
-            border-radius: 10px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            width: 480px;
+            border-radius: 12px;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.15);
         }
 
         h2 {
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
         }
 
         label {
             display: block;
-            margin-top: 10px;
+            margin-top: 12px;
+            font-weight: bold;
         }
 
         input, button {
@@ -41,22 +45,24 @@
         }
 
         button {
-            margin-top: 15px;
             background: #ffc107;
             border: none;
-            cursor: pointer;
+            margin-top: 18px;
             font-weight: bold;
+            cursor: pointer;
         }
 
         #status {
-            margin-top: 15px;
+            margin-top: 12px;
+            font-weight: bold;
         }
 
         #results {
             margin-top: 15px;
-            background: #f9f9f9;
-            padding: 10px;
-            border-radius: 6px;
+        }
+
+        canvas {
+            margin-top: 20px;
         }
     </style>
 </head>
@@ -65,18 +71,20 @@
 <div class="card">
     <h2>BiasLens</h2>
 
-    <!-- ⚠️ NO FORM TAG -->
+    <!-- NO FORM TAG (IMPORTANT) -->
     <label>Upload CSV Dataset</label>
     <input type="file" id="dataset" accept=".csv">
 
     <label>Sensitive Attribute</label>
-    <input type="text" id="sensitive" placeholder="e.g. gender">
+    <input type="text" id="sensitive" placeholder="e.g. gender, race, age">
 
-    <!-- 🔥 MOST IMPORTANT FIX -->
+    <!-- MOST IMPORTANT -->
     <button id="analyzeBtn" type="button">Analyze Bias</button>
 
     <div id="status"></div>
     <div id="results"></div>
+
+    <canvas id="biasChart" width="400" height="300"></canvas>
 </div>
 
 <script src="script.js"></script>
