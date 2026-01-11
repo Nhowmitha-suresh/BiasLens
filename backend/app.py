@@ -1,23 +1,72 @@
 from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
 import pandas as pd
+import requests
+import tempfile
+import datetime
 from reportlab.lib.pagesizes import A4
 from reportlab.pdfgen import canvas
-import datetime
-import tempfile
-import os
 
+# -------------------------------
+# App setup
+# -------------------------------
 app = Flask(__name__)
 CORS(app)
 
-def generate_explanation(di, spd, sensitive):
-    if di < 0.6 or spd > 0.2:
-        return f"High bias detected for '{sensitive}'. One group is significantly disadvantaged."
-    elif di < 0.8 or spd > 0.1:
-        return f"Potential bias detected for '{sensitive}'. Distribution is imbalanced."
-    else:
-        return f"No significant bias detected for '{sensitive}'. Groups are fairly represented."
+OLLAMA_URL = "http://localhost:11434/api/generate"
+MODEL = "phi3"   # fast + reliable (recommended)
 
+# -------------------------------
+# Ollama explanation (SAFE)
+# -------------------------------
+def ollama_explanation(di, spd, sensitive, dist):
+    prompt = f"""
+You are an ethical AI auditor.
+
+Explain the bias analysis results in simple, non-technical language.
+
+Sensitive attribute: {sensitive}
+Group distribution: {dist}
+Disparate Impact (DI): {di}
+Statistical Parity Difference (SPD): {spd}
+
+Explain:
+1. Whether bias exists
+2. Why it matters
+3. What can be improved
+"""
+
+    payload = {
+        "model": MODEL,
+        "prompt": prompt,
+        "stream": False
+    }
+
+    try:
+        response = requests.post(
+            OLLAMA_URL,
+            json=payload,
+            timeout=90   # ⏳ increased timeout
+        )
+        response.raise_for_status()
+        return response.json().get("response", "").strip()
+
+    except requests.exceptions.Timeout:
+        return (
+            "LLM explanation timed out. "
+            "However, the fairness metrics indicate potential bias. "
+            "Please review Disparate Impact and Statistical Parity Difference."
+        )
+
+    except Exception:
+        return (
+            "LLM explanation could not be generated. "
+            "Please review the fairness metrics manually."
+        )
+
+# -------------------------------
+# Bias analysis API
+# -------------------------------
 @app.route("/analyze", methods=["POST"])
 def analyze():
     try:
@@ -34,8 +83,13 @@ def analyze():
 
         col = df[sensitive]
 
+        # Auto-detect type
         if pd.api.types.is_numeric_dtype(col):
-            df["_group_"] = pd.cut(col, bins=[0,30,45,100], labels=["18–30","31–45","46+"])
+            df["_group_"] = pd.cut(
+                col,
+                bins=[0, 30, 45, 100],
+                labels=["18–30", "31–45", "46+"]
+            )
             group_col = "_group_"
             attr_type = "numeric (bucketed)"
         else:
@@ -48,7 +102,7 @@ def analyze():
         di = round(min_r / max_r, 3)
         spd = round(max_r - min_r, 3)
 
-        explanation = generate_explanation(di, spd, sensitive)
+        explanation = ollama_explanation(di, spd, sensitive, dist)
 
         return jsonify({
             "status": "success",
@@ -58,15 +112,18 @@ def analyze():
             "group_distribution": dist,
             "disparate_impact": di,
             "statistical_parity_difference": spd,
-            "explanation": explanation
+            "explanation": explanation,
+            "explanation_type": "ollama (local)"
         })
 
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
-
+# -------------------------------
+# PDF Report API
+# -------------------------------
 @app.route("/report", methods=["POST"])
-def generate_report():
+def report():
     data = request.json
 
     temp = tempfile.NamedTemporaryFile(delete=False, suffix=".pdf")
@@ -77,15 +134,15 @@ def generate_report():
     c.setFont("Helvetica-Bold", 20)
     c.drawString(50, y, "BiasLens – Bias Analysis Report")
 
-    y -= 40
-    c.setFont("Helvetica", 12)
+    y -= 30
+    c.setFont("Helvetica", 11)
     c.drawString(50, y, f"Generated on: {datetime.datetime.now()}")
 
-    y -= 30
+    y -= 25
     c.drawString(50, y, f"Sensitive Attribute: {data['sensitive_attribute']}")
-    y -= 20
+    y -= 18
     c.drawString(50, y, f"Attribute Type: {data['attribute_type']}")
-    y -= 20
+    y -= 18
     c.drawString(50, y, f"Total Records: {data['rows']}")
 
     y -= 30
@@ -95,33 +152,39 @@ def generate_report():
     y -= 20
     c.setFont("Helvetica", 12)
     c.drawString(50, y, f"Disparate Impact (DI): {data['disparate_impact']}")
-    y -= 20
+    y -= 18
     c.drawString(50, y, f"Statistical Parity Difference (SPD): {data['statistical_parity_difference']}")
 
     y -= 30
     c.setFont("Helvetica-Bold", 14)
     c.drawString(50, y, "Bias Explanation")
 
-    y -= 20
-    c.setFont("Helvetica", 12)
+    y -= 18
+    c.setFont("Helvetica", 11)
     c.drawString(50, y, data["explanation"])
 
     y -= 30
     c.setFont("Helvetica-Bold", 14)
     c.drawString(50, y, "Group Distribution")
 
-    y -= 20
-    c.setFont("Helvetica", 12)
+    y -= 18
+    c.setFont("Helvetica", 11)
     for k, v in data["group_distribution"].items():
-        c.drawString(60, y, f"{k}: {round(v*100,2)}%")
-        y -= 18
+        c.drawString(60, y, f"{k}: {round(v * 100, 2)}%")
+        y -= 15
 
     c.showPage()
     c.save()
 
-    return send_file(temp.name, as_attachment=True, download_name="BiasLens_Report.pdf")
+    return send_file(
+        temp.name,
+        as_attachment=True,
+        download_name="BiasLens_Report.pdf"
+    )
 
-
+# -------------------------------
+# Run app
+# -------------------------------
 if __name__ == "__main__":
-    print("🚀 BiasLens running on http://127.0.0.1:5000")
+    print("🚀 BiasLens backend running with Ollama (local LLM)")
     app.run(debug=True)
